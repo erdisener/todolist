@@ -1,32 +1,37 @@
 import React, {useState} from 'react';
-import { StyleSheet, Text, View, TextInput, Button, ScrollView, FlatList } from 'react-native';
+import { StyleSheet, View, Button, FlatList } from 'react-native';
 import DoItem from './components/DoItem';
+import DoInput from './components/DoInput';
 
 export default function App() {
-  const [enteredGoal, setEnteredGoal] = useState('');
   const [toDos, setToDos] = useState([]);
+  const [isAddMode, setIsAddMode] = useState(false);
 
-  const goalInputHandler = (enteredText) => {
-    setEnteredGoal(enteredText);
-  };
-
-  const addGoalHandler = () => {
+  const addGoalHandler = goalTitle => {
     setToDos(currentGoals => [...currentGoals, 
-      {key: Math.random().toString(), value: enteredGoal}
+      {id: Math.random().toString(), value: goalTitle}
     ]);
+    setIsAddMode(false);
   };
+
+    const removeGoalHandler = goalId => {
+      setToDos(currentGoals => {
+        return currentGoals.filter((goal) => goal.id !==goalId);
+      });
+    };
+
+    const cancelGoalAdditionHandler = () => {
+      setIsAddMode(false);
+    };
+
   return (
     <View style={styles.screen}>
-      <View style={styles.inputContainer}>
-        <TextInput placeholder="To Do..." style={styles.input} 
-        onChangeText={goalInputHandler}
-        value={enteredGoal}  
-        />
-        <Button title="ADD" onPress={addGoalHandler}/>
-      </View>
+      <Button title={"Add New Goal"} onPress={() => setIsAddMode(true)} />
+      <DoInput visible={isAddMode} onAddGoal={addGoalHandler} onCancel={cancelGoalAdditionHandler} />
       <FlatList
+        keyExtractor={(item, index) => item.id}
         data={toDos} 
-        renderItem={itemData => <DoItem title={itemData.item.value} />}
+        renderItem={itemData => <DoItem id={itemData.item.id} onDelete={removeGoalHandler} title={itemData.item.value} />}
       />
     </View>
   );
@@ -36,16 +41,5 @@ const styles = StyleSheet.create({
   screen: {
     padding: 50
   },
-  inputContainer: {
-    flexDirection:'row', 
-    justifyContent: 'space-between', 
-    alignItems:'center'
-  },
-  input: {
-    width: '70%', 
-    borderBottomColor: 'black', 
-    borderBottomWidth: 1, 
-    padding: 10
-  }
   
 });
