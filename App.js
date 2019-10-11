@@ -8,6 +8,9 @@ export default function App() {
   const [isAddMode, setIsAddMode] = useState(false);
 
   const addGoalHandler = goalTitle => {
+    if (goalTitle.length === 0) {
+      return;
+    }
     setToDos(currentGoals => [...currentGoals, 
       {id: Math.random().toString(), value: goalTitle}
     ]);
